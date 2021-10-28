@@ -10,16 +10,13 @@ export const buildApiUrl = (endpoint: string) => {
   return `${Restfull.serverURL}/${Restfull.prefix}${endpoint}${end}`;
 };
 
-const defaultHeaders = (auth: boolean = true) => {
+const defaultHeaders = () => {
   const h: {[key: string]: string} = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     // 'Accept-Language': I18n.language,
     // 'User-Agent': `${Restfull.appName}/${version} ${system}/${systemVersion} ${brand}; ${model}`,
   };
-  if (auth) {
-    h.Authorization = `Bearer ${Restfull.accessToken}`;
-  }
   return h;
 };
 
@@ -55,7 +52,6 @@ class Restfull {
     params,
     headers = {},
     upload = false,
-    auth = true,
     encoding = 'json',
   }: RestfullRequestProps & {method: RequestMethod}): Promise<T> {
     let url = `${Restfull.serverURL}/${endpoint}`;
@@ -66,7 +62,7 @@ class Restfull {
     const req: {[key: string]: any} = {
       method,
       headers: {
-        ...defaultHeaders(auth),
+        ...defaultHeaders(),
         ...headers,
       },
       body: undefined,
