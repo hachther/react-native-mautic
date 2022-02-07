@@ -171,7 +171,7 @@ class Mautic {
   }
 
   static async editContact(
-    contactId: number,
+    contactId: string,
     params: MauticContactCreationProp,
   ): Promise<{contact: MauticContactProps}> {
     const token = await Mautic.getToken();
