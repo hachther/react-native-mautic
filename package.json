@@ -1,0 +1,27 @@
+{
+  "name": "react-native-mautic",
+  "version": "1.0.0",
+  "description": "React native module for mautic integration",
+  "main": "index.ts",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hachther/react-native-mautic.git"
+  },
+  "keywords": [
+    "React Native",
+    "Mautic"
+  ],
+  "author": "Hachter LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hachther/react-native-mautic/issues"
+  },
+  "homepage": "https://github.com/hachther/react-native-mautic#readme",
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.16"
+  }
+}

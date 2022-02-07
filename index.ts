@@ -1,3 +1,3 @@
 import Mautic from './src/Mautic';
 
-module.exports = {Mautic};
+module.exports = Mautic;
