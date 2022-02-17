@@ -1,8 +1,8 @@
 export interface MauticInitProps {
     serverURL: string | null;
     appName: string;
-    clientId: string;
-    clientSecret: string;
+    username: string;
+    password: string;
   }
   
   export interface MauticRequestTokenProps {
