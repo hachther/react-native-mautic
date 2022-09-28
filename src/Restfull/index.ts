@@ -97,7 +97,7 @@ class Restfull {
     }
     const response = await fetch(url, req);
     if (response.status >= 300) {
-      throw new RestError('Error during the processing');
+      throw new RestError(await response.text());
     }
 
     if (response.status === 204) {

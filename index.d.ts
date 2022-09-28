@@ -4,17 +4,17 @@ export interface MauticInitProps {
     username: string;
     password: string;
   }
-  
+
   export interface MauticRequestTokenProps {
     clientId: string;
     clientSecret: string;
   }
-  
+
   export type MauticStoredToken = {
     accessToken: string;
     expiryAt: number;
   };
-  
+
   export interface MauticContactField {
     title?: 'Mr' | 'Mrs' | 'Miss';
     companyaddress1?: string;
@@ -64,14 +64,14 @@ export interface MauticInitProps {
     sex?: 'MAN' | 'WOMAN';
     // [key: string]: string | number | boolean;
   }
-  
+
   export interface MauticContactCreationProp extends MauticContactField {
     ipAddress?: string;
     lastActive?: Date;
     owner?: number;
     overwriteWithBlank?: boolean;
   }
-  
+
   export interface MauticContactProps {
     id: number;
     isPublished: boolean;
@@ -83,6 +83,18 @@ export interface MauticInitProps {
     modifiedByUser: string;
   }
 
+  export interface MauticPushDeviceProp {
+    token: string;
+    firebase_project: string;
+    platform: string;
+    platform_version: string;
+    model: string;
+    make: string;
+    app: string;
+    app_version: string;
+    contact: string;
+  }
+
 export default class Mautic {
     static init(props: MauticInitProps);
     static getToken(): Promise<string>;
@@ -90,4 +102,6 @@ export default class Mautic {
     static createContact(params: MauticContactCreationProp): Promise<{contact: MauticContactProps}>;
     static setLastActive(contactId: number): Promise<{contact: MauticContactProps}>;
     static editContact(contactId: string, params: MauticContactCreationProp): Promise<{contact: MauticContactProps}>;
+    static createPushDevice(params: MauticPushDeviceProp): Promise<Record<string, any>>;
+    static updatePushDevice(deviceId: string, params: MauticPushDeviceProp): Promise<Record<string, any>>;
 }
