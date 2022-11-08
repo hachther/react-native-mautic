@@ -65,7 +65,7 @@ class Mautic {
   }
 
   static async updatePushDevice(contact: string, data: MauticPushDeviceProp) {
-    return await Restfull.post<any>({
+    return await Restfull.patch<any>({
       endpoint: `api/fcm/devices/${contact}/edit`,
       params: data,
       headers: {Authorization: `Basic ${Mautic.basicToken}`},
