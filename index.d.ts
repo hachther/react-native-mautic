@@ -125,6 +125,13 @@ export interface MauticAppEventProps {
   [key: string]: any;
 }
 
+export interface MauticVideoHitProps {
+  duration?: number;
+  url: string;
+  total_watched?: number;
+  [key: string]: any;
+}
+
 export default class Mautic {
   static init(props: MauticInitProps);
 
@@ -143,5 +150,6 @@ export default class Mautic {
   static updatePushDevice(deviceId: string, params: MauticPushDeviceProp): Promise<Record<string, any>>;
   static addUTM(contactId: string, params: MauticContactUTMProps): Promise<Record<string, any>>;
   static sendAppHit(params: MauticAppEventProps): Promise<Record<string, any>>;
+  static sendVideoHit(params: MauticVideoHitProps): Promise<void>;
   static performCachedRequest(): Promise<void>;
 }

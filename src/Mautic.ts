@@ -1,8 +1,33 @@
 import Restfull from './Restfull';
 import base64 from 'react-native-base64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getUniqueId,
+  getBrand,
+  getBaseOs,
+  getDevice,
+  getDeviceName,
+  getModel,
+  getReadableVersion,
+  getSystemName,
+  getSystemVersion,
+  getUserAgent,
+  getDeviceType,
+  getBundleId,
+  getApplicationName,
+} from 'react-native-device-info';
+import {Platform, NativeModules} from 'react-native';
+import TimeZone from 'react-native-timezone';
 
-import { MauticPushDeviceProp, MauticContactCreationProps, MauticContactProps, MauticInitProps, MauticRequestTokenProps, MauticStoredToken, MauticContactUTMProps, MauticAppEventProps } from '..';
+const deviceLanguage = () => {
+  if (Platform.OS === 'android') {
+    return NativeModules.I18nManager.localeIdentifier;
+  }
+
+  return NativeModules.SettingsManager.settings.AppleLocale;
+};
+
+import { MauticPushDeviceProp, MauticContactCreationProps, MauticContactProps, MauticInitProps, MauticRequestTokenProps, MauticStoredToken, MauticContactUTMProps, MauticAppEventProps, MauticVideoHitProps } from '..';
 
 class Mautic {
   static basicToken: string;
@@ -103,8 +128,41 @@ class Mautic {
     }
     return await Restfull.post<any>({
       endpoint: 'fcm/events',
+      params: {
+        ...params,
+        // device_name: await getDeviceName(),
+        // device_os: getSystemName(),
+        // device_brand: getBrand(),
+        // device_model: getModel(),
+        platform: `${getSystemName()} ${getSystemVersion()}`,
+        bundle_id: getBundleId(),
+        app: `${getApplicationName()}/v.${getReadableVersion()}`,
+        preferred_locale: deviceLanguage(),
+        timezone: await TimeZone.getTimeZone(),
+        timezone_offset: new Date().getTimezoneOffset(),
+      },
+      headers: {
+        Authorization: `Basic ${Mautic.basicToken}`,
+        'X-Requested-With': 'XMLHttpRequest',
+        // 'User-Agent': getUserAgent(),
+      },
+    });
+  }
+
+  static async sendVideoHit(params: MauticVideoHitProps) {
+    if (!Mautic.trackingId) {
+      return
+    }
+    params.mautic_device_id = Mautic.trackingId;
+    params.guid = await getUniqueId();
+
+    return await Restfull.post<any>({
+      endpoint: 'video/hit',
       params,
-      headers: {Authorization: `Basic ${Mautic.basicToken}`},
+      headers: {
+        // Authorization: `Basic ${Mautic.basicToken}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
     });
   }
 
