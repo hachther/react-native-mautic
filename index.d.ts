@@ -3,6 +3,7 @@ export interface MauticInitProps {
   appName: string;
   username: string;
   password: string;
+  onInitialize?: () => void;
 }
 
 export interface MauticRequestTokenProps {
@@ -93,6 +94,7 @@ export interface MauticPushDeviceProp {
   app: string;
   app_version: string;
   contact: string;
+  bundle_id?: string;
 }
 
 export interface MauticContactUTMProps {

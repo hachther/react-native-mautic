@@ -34,20 +34,28 @@ class Mautic {
   public static ipAddress: string;
   static currentToken: MauticStoredToken;
   public static trackingId: string;
+  public static contactId: string;
+  public static appName: string;
 
-  static init({serverURL, appName, username, password}: MauticInitProps) {
+  static init({serverURL, appName, username, password, onInitialize}: MauticInitProps) {
     Restfull.serverURL = serverURL;
     Restfull.appName = appName;
     Restfull.profile = 'other';
 
     Mautic.basicToken = base64.encode(`${username}:${password}`);
-    AsyncStorage.getItem('trackingId').then(trackingId => {
+    AsyncStorage.multiGet(['contactId', 'trackingId']).then(async ret => {
+      let contactId = ret[0][1];
+      let trackingId = ret[1][1];
       if (trackingId) {
         Mautic.trackingId = trackingId;
       }
+      if (contactId) {
+        Mautic.contactId = contactId;
+      }
+      if (onInitialize){
+        onInitialize();
+      }
     })
-    // Mautic.password = password;
-    // Restfull.tracking = tracking;
   }
 
   static async createContact(
@@ -55,11 +63,15 @@ class Mautic {
   ): Promise<{contact: MauticContactProps}> {
     params.tags = Restfull.appName;
     params.ipAddress = Mautic.ipAddress;
-    return await Restfull.post<any>({
+    const ret = await Restfull.post<any>({
       endpoint: 'api/contacts/new',
       params: params,
       headers: {Authorization: `Basic ${Mautic.basicToken}`},
     });
+    if (ret.contact) {
+      Mautic.setContactId(String(ret.contact.id));
+    }
+    return ret.contact;
   }
 
   static async setLastActive(
@@ -76,15 +88,19 @@ class Mautic {
   }
 
   static async editContact(
-    contactId: string,
     params: MauticContactCreationProp,
+    contactId?: string,
   ): Promise<{contact: MauticContactProps}> {
     params.ipAddress = Mautic.ipAddress;
-    return await Restfull.patch<any>({
-      endpoint: `api/contacts/${contactId}/edit`,
+    const ret = await Restfull.patch<any>({
+      endpoint: `api/contacts/${contactId || Mautic.contactId}/edit`,
       params: params,
       headers: {Authorization: `Basic ${Mautic.basicToken}`},
     });
+    if (ret.contact) {
+      Mautic.setContactId(String(ret.contact.id));
+    }
+    return ret.contact;
   }
 
   static async addUTM(contactId: string, params: MauticContactUTMProps) {
@@ -116,6 +132,47 @@ class Mautic {
       endpoint: `api/fcm/devices/${id}`,
       headers: {Authorization: `Basic ${Mautic.basicToken}`},
     });
+  }
+
+  static async trackPushDeviceChange(data: Partial<MauticPushDeviceProp>) {
+    if (!Mautic.contactId) {
+      await Mautic.createContact({});
+    }
+
+    let ret: {success: number; device: Record<string, any>} | undefined;
+    const params: Omit<MauticPushDeviceProp, 'firebase_project' | 'token'> = {
+      platform: getSystemName(),
+      platform_version: getSystemVersion(),
+      model: getModel(),
+      make: getBrand(),
+      app: Mautic.appName,
+      app_version: getReadableVersion(),
+      bundle_id: getBundleId(),
+      contact: Mautic.contactId,
+    };
+    const savedDevice = await AsyncStorage.getItem('MauticDevice');
+    if (!savedDevice) {
+      ret = await Mautic.createPushDevice({...data, ...params} as MauticPushDeviceProp);
+    } else {
+      let device = JSON.parse(savedDevice);
+      const isDefferent = Object.keys(params).some(key => {
+        // @ts-ignore
+        return params[key] != device[key]
+      })
+      if (isDefferent) {
+        ret = await Mautic.updatePushDevice(device.id, {...data, ...params} as MauticPushDeviceProp)
+      }
+    }
+
+    if (!ret) {
+      return undefined
+    }
+
+    await AsyncStorage.setItem('MauticDevice', JSON.stringify(ret.device));
+
+    Mautic.setTrackingId(ret.device.tracking_id)
+
+    return ret.device;
   }
 
   static async sendAppHit(params: MauticAppEventProps) {
@@ -169,6 +226,11 @@ class Mautic {
   static async setTrackingId(trackingId: string) {
     Mautic.trackingId = trackingId;
     await AsyncStorage.setItem('trackingId', trackingId);
+  }
+
+  static async setContactId(contactId: string) {
+    Mautic.contactId = contactId;
+    await AsyncStorage.setItem('contactId', contactId);
   }
 
   static async performCachedRequest() {
