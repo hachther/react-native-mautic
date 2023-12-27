@@ -225,11 +225,17 @@ class Mautic {
 
   static async setTrackingId(trackingId: string) {
     Mautic.trackingId = trackingId;
+    if (!trackingId) {
+      return
+    }
     await AsyncStorage.setItem('trackingId', trackingId);
   }
 
   static async setContactId(contactId: string) {
     Mautic.contactId = contactId;
+    if (!contactId) {
+      return
+    }
     await AsyncStorage.setItem('contactId', contactId);
   }
 
