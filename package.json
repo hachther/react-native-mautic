@@ -1,15 +1,37 @@
 {
   "name": "react-native-mautic",
+  "title": "React Native Mautic",
   "version": "1.0.0",
   "description": "React native module for mautic integration",
   "main": "index.ts",
+  "module": "index.ts",
+  "react-native": "index.ts",
+  "source": "index.ts",
   "types": "index.d.ts",
+  "files": [
+    "README.md",
+    "android",
+    "index.js",
+    "ios",
+    "src",
+    "dist",
+    "react-native-hachther-utilities.podspec",
+    "lib",
+    "cpp",
+    "!lib/typescript/example",
+    "!android/build",
+    "!ios/build",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
+  ],
   "scripts": {
     "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hachther/react-native-mautic.git"
+    "url": "git+https://github.com/hachther/react-native-mautic.git",
+    "baseUrl": "https://github.com/hachther/react-native-mautic"
   },
   "keywords": [
     "React Native",
